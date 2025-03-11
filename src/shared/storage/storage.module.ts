@@ -18,6 +18,7 @@ import { S3Client } from '@aws-sdk/client-s3';
             accessKeyId: configService.get('AWS_ACCESS_KEY_ID'),
             secretAccessKey: configService.get('AWS_SECRET_ACCESS_KEY'),
           },
+          forcePathStyle: true,
         });
       },
     },

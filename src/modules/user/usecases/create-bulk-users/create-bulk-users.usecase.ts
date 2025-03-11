@@ -10,7 +10,7 @@ export class CreateBulkUsersUseCase implements ICreateBulkUsersUseCase {
     @Inject(USERS_REPOSITORY)
     private readonly usersRepository: IUsersRepository,
   ) {}
-  async execute(items: Partial<UserEntity>[]): Promise<void> {
+  async execute(items: Partial<UserEntity>[]): Promise<UserEntity[]> {
     const usersEmailsSerialized = items
       .map((item) => item.email?.toLowerCase())
       .filter((email) => email);
@@ -19,7 +19,8 @@ export class CreateBulkUsersUseCase implements ICreateBulkUsersUseCase {
       usersEmailsSerialized,
     );
 
-    if (alreadyExists.length === usersEmailsSerialized.length) return;
+    if (alreadyExists.length === usersEmailsSerialized.length)
+      return this.usersRepository.findByEmails(usersEmailsSerialized);
 
     const alreadyExistsEmailsSet = new Set(
       alreadyExists.map((user) => user.email),
@@ -28,15 +29,19 @@ export class CreateBulkUsersUseCase implements ICreateBulkUsersUseCase {
     const usersToCreate: UserEntity[] = items
       .filter((item) => !alreadyExistsEmailsSet.has(item.email))
       .map((item) => ({
-        id: null,
+        id: undefined,
         name: item.name,
         email: item.email.toLowerCase(),
+        governmentId: item.governmentId,
         created_at: new Date(),
         updated_at: new Date(),
       }));
 
-    if (!usersToCreate.length) return;
+    if (!usersToCreate.length)
+      return this.usersRepository.findByEmails(usersEmailsSerialized);
 
     await this.usersRepository.createBulk(usersToCreate);
+
+    return this.usersRepository.findByEmails(usersEmailsSerialized);
   }
 }

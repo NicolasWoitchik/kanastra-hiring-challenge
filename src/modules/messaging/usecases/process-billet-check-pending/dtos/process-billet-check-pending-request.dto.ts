@@ -1,3 +1,3 @@
 export class ProcessBilletCheckPendingRequestDTO {
-  constructor(readonly date: Date) {}
+  constructor(readonly date: string) {}
 }

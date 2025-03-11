@@ -3,23 +3,28 @@ import {
   billetTopicExchangeName,
   defaultDeadLettersExchangeName,
 } from '@modules/messaging/constants';
-import { Injectable, Logger } from '@nestjs/common';
-import { ProcessGroupUploadedFileUseCase } from '../process-group-uploaded-file/process-group-uploaded-file.usecase';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { BilletEntity } from '@modules/billet/entities/billet.entity';
 import { IProcessBilletPaymentUseCase } from './process-billet-payment.interface';
+import { BILLETS_REPOSITORY } from '@modules/billet/constants';
+import { IBilletsRepository } from '@modules/billet/repositories/interfaces/billets-repository.interface';
+import { BilletStatusEnum } from '@modules/billet/enums/billet-status.enum';
 
 @Injectable()
 export class ProcessBilletPaymentUseCase
   implements IProcessBilletPaymentUseCase
 {
-  constructor() {}
+  constructor(
+    @Inject(BILLETS_REPOSITORY)
+    private readonly billetRepository: IBilletsRepository,
+  ) {}
 
   @RabbitSubscribe({
     exchange: billetTopicExchangeName,
     routingKey: 'billet.process_payment',
     queue: 'PROCESS_BILLET_PAYMENT_QUEUE',
     errorHandler: (channel, msg, err) => {
-      const logger = new Logger(ProcessGroupUploadedFileUseCase.name);
+      const logger = new Logger(ProcessBilletPaymentUseCase.name);
 
       logger.error('consuming process billet payment', {
         err,
@@ -33,9 +38,20 @@ export class ProcessBilletPaymentUseCase
     },
   })
   async execute(dto: BilletEntity): Promise<void> {
-    const logger = new Logger(ProcessGroupUploadedFileUseCase.name);
+    const logger = new Logger(ProcessBilletPaymentUseCase.name);
 
     logger.log(`Starting processing billet payment. BilletID ${dto.id}`, dto);
+
+    const billet = await this.billetRepository.findById(dto.id);
+
+    if (!billet) return logger.error(`Billet ${dto.id} not found`);
+
+    if (billet.status != BilletStatusEnum.PENDING)
+      return logger.error(`Billet ${dto.id} not pending`);
+
+    dto.status = BilletStatusEnum.PAID;
+
+    await this.billetRepository.update(dto);
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
 

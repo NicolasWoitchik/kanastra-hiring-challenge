@@ -57,17 +57,22 @@ export class ProcessBilletCheckPendingUseCase
     logger: Logger,
     offset = 0,
   ): Promise<void> {
-    const pendingBills =
+    const pendingBillets =
       await this.billetRepository.findAllPendingByDebtDueDate(dto.date, offset);
 
-    if (!pendingBills) return logger.log('No pending billets to process');
+    if (!pendingBillets.length)
+      return logger.log('No pending billets to process');
 
-    logger.log(`Found ${pendingBills.length} pending billets to process`);
+    logger.log(`Found ${pendingBillets.length} pending billets to process`);
 
-    await this.amqpConnection.publish(
-      billetTopicExchangeName,
-      'billet.process_payment',
-      pendingBills,
+    await Promise.all(
+      pendingBillets.map((billet) =>
+        this.amqpConnection.publish(
+          billetTopicExchangeName,
+          'billet.process_payment',
+          billet,
+        ),
+      ),
     );
 
     return this.findAllPendingbilletsAndPublish(dto, logger, offset + 50);

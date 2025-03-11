@@ -21,8 +21,8 @@ export class BilletEntity {
   @Column()
   debt_mount: number;
 
-  @Column()
-  debt_due_date: Date;
+  @Column('date')
+  debt_due_date: string;
 
   @Column()
   status: string;

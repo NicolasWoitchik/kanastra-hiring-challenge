@@ -14,7 +14,7 @@ export class CreateBulkBilletsUseCase implements ICreateBulkBilletsUseCase {
 
   async execute(request: Partial<BilletEntity>[]): Promise<void> {
     const items: BilletEntity[] = request.map((item) => ({
-      id: null,
+      id: item.id,
       status: BilletStatusEnum.PENDING,
       user_id: item.user_id,
       debt_mount: item.debt_mount,

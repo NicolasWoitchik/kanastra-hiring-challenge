@@ -14,6 +14,7 @@ import { Inject, Logger } from '@nestjs/common';
 import { S3_CLIENT } from '@shared/storage/constants';
 import { ConfigService } from '@nestjs/config';
 import { ProcessGroupUploadedFileDTO } from '../process-group-uploaded-file/dtos/process-group-uploaded-file.dto';
+import { ProcessGroupUploadedFileItemDTO } from '../process-group-uploaded-file/dtos/process-group-uploaded-file-item.dto';
 
 export class ProcessUploadedFileUseCase implements IProcessUploadedFileUseCase {
   constructor(
@@ -99,7 +100,10 @@ export class ProcessUploadedFileUseCase implements IProcessUploadedFileUseCase {
     });
   }
 
-  async _publishGroup(rows: any[], processId: string) {
+  async _publishGroup(
+    rows: ProcessGroupUploadedFileItemDTO[],
+    processId: string,
+  ) {
     const groupId = crypto.randomUUID().replace(/-/g, '');
 
     await this.amqpConnection.publish(

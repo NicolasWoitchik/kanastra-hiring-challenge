@@ -12,14 +12,22 @@ export class BilletsRepository implements IBilletsRepository {
     private readonly typeormRepository: Repository<BilletEntity>,
   ) {}
 
+  findById(id: string): Promise<BilletEntity> {
+    return this.typeormRepository.findOne({
+      where: {
+        id,
+      },
+    });
+  }
+
   createBulk(items: BilletEntity[]): Promise<BilletEntity[]> {
     return this.typeormRepository.save(items);
   }
-  update(billet: BilletEntity): Promise<BilletEntity> {
-    return this.typeormRepository.save(billet);
+  async update(billet: BilletEntity): Promise<void> {
+    await this.typeormRepository.update(billet.id, billet);
   }
   findAllPendingByDebtDueDate(
-    date: Date,
+    date: string,
     offset: number = 0,
   ): Promise<BilletEntity[]> {
     return this.typeormRepository.find({

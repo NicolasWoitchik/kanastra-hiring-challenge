@@ -19,6 +19,9 @@ export class UserEntity {
   @Column()
   email: string;
 
+  @Column()
+  governmentId: string;
+
   @OneToMany(() => BilletEntity, (billet) => billet.user_id)
   billets?: BilletEntity[];
 

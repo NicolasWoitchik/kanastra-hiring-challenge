@@ -7,6 +7,7 @@ import {
   EXCHANGE_DEADLETTERS_NAME,
   FILE_TOPIC_EXCHANGE,
   PROCESS_BILLET_CHECK_PENDING_USECASE,
+  PROCESS_BILLET_PAYMENT_USECASE,
   PROCESS_GROUP_UPLOADED_FILE_USECASE,
   PROCESS_UPLOADED_FILE_USECASE,
 } from './constants';
@@ -15,6 +16,7 @@ import { ProcessGroupUploadedFileUseCase } from './usecases/process-group-upload
 import { BilletsModule } from '@modules/billet/billets.module';
 import { UsersModule } from '@modules/user/user.module';
 import { ProcessBilletCheckPendingUseCase } from './usecases/process-billet-check-pending/process-billet-check-pending.usecase';
+import { ProcessBilletPaymentUseCase } from './usecases/process-billet-payment/process-billet-payment.usecase';
 
 @Module({
   imports: [
@@ -105,6 +107,10 @@ import { ProcessBilletCheckPendingUseCase } from './usecases/process-billet-chec
     {
       provide: PROCESS_BILLET_CHECK_PENDING_USECASE,
       useClass: ProcessBilletCheckPendingUseCase,
+    },
+    {
+      provide: PROCESS_BILLET_PAYMENT_USECASE,
+      useClass: ProcessBilletPaymentUseCase,
     },
   ],
   exports: [RabbitMQModule],

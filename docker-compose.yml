@@ -6,24 +6,25 @@ services:
     container_name: kanastra_backend
     environment:
       - PORT=3000
-      - AWS_ENDPOINT=http://localhost:9000/kanastra-bucket
+      - AWS_ENDPOINT=http://minio:9000/kanastra-bucket
       - AWS_REGION=sa-east-1
       - AWS_ACCESS_KEY_ID=2J2z1TqWCShc1wYcwQsS
       - AWS_SECRET_ACCESS_KEY=mmpZsFc99jX7tQeZaypf56rhvQlAAKuR01kwpw9e
       - AWS_BUCKET=kanastra-bucket
-      - RABBITMQ_KANASTRA_CONNECTION_STRING=amqp://admin:passw123@localhost:5672
-      - RABBITMQ_STREAM_KANASTRA_CONNECTION_STRING=amqp://admin:passw123@localhost:5552
+      - RABBITMQ_KANASTRA_CONNECTION_STRING=amqp://admin:passw123@rabbitmq:5672
       - RABBITMQ_FILE_TOPIC_EXCHANGE=FILE_TOPIC
       - RABBITMQ_BILLET_TOPIC_EXCHANGE=BILLET_TOPIC
-      - DATABASE_HOST=localhost
+      - DATABASE_HOST=postgres
       - DATABASE_PORT=5432
       - DATABASE_USERNAME=postgres
-      - DATABASE_PASSWORD="kanastra_password!"
+      - DATABASE_PASSWORD=kanastra_password!
       - DATABASE_SCHEMA=public
     ports:
       - '3000:3000'
     depends_on:
-      - db
+      - minio
+      - rabbitmq
+      - postgres
     volumes:
       - ./src:/app/src
   minio:
