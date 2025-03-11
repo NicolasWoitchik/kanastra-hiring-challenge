@@ -1,0 +1,1 @@
+export const GET_HEALTH_CHECK = 'GET_HEALTH_CHECK';
