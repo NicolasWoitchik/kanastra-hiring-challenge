@@ -1,0 +1,1 @@
+export const EVERY_DAY_USECASE = 'EVERY_DAY_USECASE';
